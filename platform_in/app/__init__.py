@@ -8,7 +8,7 @@ from datetime import datetime
 import requests
 
 logging.basicConfig(level=logging.INFO)
-elastic_apm = ElasticAPM()
+#elastic_apm = ElasticAPM()
 
 success_response_object = {"status": "success"}
 success_code = 200
@@ -26,7 +26,7 @@ def create_app(script_info=None):
     app.config.from_object(app_settings)
 
     # set up extensions
-    elastic_apm.init_app(app)
+    #elastic_apm.init_app(app)
 
     def get_ds_id(thing, sensor):
         # """
@@ -56,59 +56,61 @@ def create_app(script_info=None):
     def hello_world():
         return jsonify(health="ok")
 
-    @app.route("/cesva/v1", methods=["PUT"])
+    @app.route("/viikkienergymeters/v1/observation", methods=["POST"])
     def put_sentilonoise_data():
         try:
             data = request.get_json()
-            #logging.info(data)
-            data_streams = data["sensors"]
+            logging.info(data)
+            # data_streams = data["sensors"]
 
-            for data_stream in data_streams:
-                name = data_stream["sensor"]
-                thing = f"Noise-{name[0:len(name)-2]}"
-                sensor = f"{name[-1].lower()}_val"
-                logging.debug(thing)
-                logging.debug(sensor)
+            # for data_stream in data_streams:
+            #     name = data_stream["sensor"]
+            #     thing = f"Noise-{name[0:len(name)-2]}"
+            #     sensor = f"{name[-1].lower()}_val"
+            #     logging.debug(thing)
+            #     logging.debug(sensor)
 
-                ds_id = get_ds_id(thing, sensor)
-                if ds_id == -1:
-                    logging.warning(f"no datastream id found for {thing} + {sensor}")
+            #     ds_id = get_ds_id(thing, sensor)
+            #     if ds_id == -1:
+            #         logging.warning(f"no datastream id found for {thing} + {sensor}")
 
-                timestamp = data_stream["observations"][0]["timestamp"]
-                # ogging.info(timestamp)
-                dt_obj = datetime.strptime(timestamp, "%d/%m/%YT%H:%M:%SUTC")
-                phenomenon_timestamp_millisec = round(dt_obj.timestamp() * 1000)
-                dt_obj = datetime.utcnow()
-                result_timestamp_millisec = round(dt_obj.timestamp() * 1000)
-                topic = "finest-observations-sentilonoise"
-                observation = {
-                    "phenomenontime_begin": phenomenon_timestamp_millisec,
-                    "phenomenontime_end": None,
-                    "resulttime": result_timestamp_millisec,
-                    "result": data_stream["observations"][0]["value"],
-                    "resultquality": None,
-                    "validtime_begin": None,
-                    "validtime_end": None,
-                    "parameters": None,
-                    "datastream_id": ds_id,
-                    "featureofintrest_link": None,
-                }
+            #     timestamp = data_stream["observations"][0]["timestamp"]
+            #     # ogging.info(timestamp)
+            #     dt_obj = datetime.strptime(timestamp, "%d/%m/%YT%H:%M:%SUTC")
+            #     phenomenon_timestamp_millisec = round(dt_obj.timestamp() * 1000)
+            #     dt_obj = datetime.utcnow()
+            #     result_timestamp_millisec = round(dt_obj.timestamp() * 1000)
+            #     topic = "finest-observations-sentilonoise"
+            #     observation = {
+            #         "phenomenontime_begin": phenomenon_timestamp_millisec,
+            #         "phenomenontime_end": None,
+            #         "resulttime": result_timestamp_millisec,
+            #         "result": data_stream["observations"][0]["value"],
+            #         "resultquality": None,
+            #         "validtime_begin": None,
+            #         "validtime_end": None,
+            #         "parameters": None,
+            #         "datastream_id": ds_id,
+            #         "featureofintrest_link": None,
+            #     }
 
-                payload = {"topic": topic, "observation": observation}
+            #     payload = {"topic": topic, "observation": observation}
 
-                headers = {"Content-type": "application/json"}
-                resp = requests.post(
-                    app.config["OBSERVATIONS_ENDPOINT"],
-                    data=json.dumps(payload),
-                    headers=headers,
-                )
-                # resp = requests.post("http://host.docker.internal:1337/observation", data=json.dumps(payload), headers=headers)
+            #     headers = {"Content-type": "application/json"}
+            #     resp = requests.post(
+            #         app.config["OBSERVATIONS_ENDPOINT"],
+            #         data=json.dumps(payload),
+            #         headers=headers,
+            #     )
+
+
+            #     # resp = requests.post("http://host.docker.internal:1337/observation", data=json.dumps(payload), headers=headers)
 
             return success_response_object, success_code
 
         except Exception as e:
             logging.error("Error at %s", "data to kafka", exc_info=e)
-            elastic_apm.capture_exception()
+            #elastic_apm.capture_exception()
             return failure_response_object, failure_code
 
     return app

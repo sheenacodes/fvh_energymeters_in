@@ -2,7 +2,7 @@ version: "3"
 
 services:
 
-  fvh_sentilonoise_in:
+  fvh_energymeters_in:
     build:
       context: ./platform_in/
       dockerfile: Dockerfile.prod
@@ -21,4 +21,4 @@ services:
     ports:
       - 1339:80
     depends_on:
-      - fvh_sentilonoise_in
+      - fvh_energymeters_in
