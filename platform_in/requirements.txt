@@ -1,0 +1,9 @@
+
+wheel
+requests
+elastic-apm
+Flask
+Flask-Security
+gunicorn
+Jinja2
+pytest
