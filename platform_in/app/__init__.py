@@ -59,7 +59,7 @@ def create_app(script_info=None):
     @app.route("/viikkienergymeters/v1/observation", methods=["GET"])
     def put_sentilonoise_data():
         try:
-            data = request.get_json()
+            data = request.data
             logging.info(data)
             # data_streams = data["sensors"]
 
