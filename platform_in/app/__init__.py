@@ -56,7 +56,7 @@ def create_app(script_info=None):
     def hello_world():
         return jsonify(health="ok")
 
-    @app.route("/viikkienergymeters/v1/observation", methods=["GET"])
+    @app.route("/viikkienergymeters/v1/observation", methods=["GET", "POST"])
     def put_sentilonoise_data():
         try:
             data = request.data
